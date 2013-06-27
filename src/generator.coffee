@@ -3,6 +3,7 @@ path       = require 'path'
 mkdirp     = require 'mkdirp'
 _          = require 'underscore'
 
+Writer     = require './util/writer'
 Templater  = require './util/templater'
 Referencer = require './util/referencer'
 Markdown   = require './util/markdown'
@@ -18,8 +19,9 @@ module.exports = class Generator
   # @param [Object] options the options
   #
   constructor: (@parser, @options) ->
+    @writer = new Writer(@options)
     @referencer = new Referencer(@parser.classes, @parser.mixins, @options)
-    @templater = new Templater(@options, @referencer, @parser)
+    @templater = new Templater(@options, @referencer, @parser, @writer)
 
   # Generate the documentation. Without callback, the documentation
   # is written to the file system, with callback, the file content
@@ -31,7 +33,7 @@ module.exports = class Generator
   # @param [Function] file the optional file generation callback
   #
   generate: (file) ->
-    @templater.redirect(file) if file
+    @writer.setCallback file if file
 
     @generateIndex()
 

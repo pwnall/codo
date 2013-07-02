@@ -44,8 +44,9 @@ module.exports = class Codo
   # @param [Function] file the new file callback
   # @param [String] analytics the Google analytics tracking code
   # @param [String] homepage the homepage in the breadcrumbs
+  # @param [String] theme the name of the theme used to render the docs
   #
-  @run: (done, file, analytics = false, homepage = false) ->
+  @run: (done, file, analytics = false, homepage = false, theme = false) ->
 
     codoopts =
       _ : []
@@ -102,6 +103,11 @@ module.exports = class Codo
             alias     : 'output-dir'
             describe  : 'The output directory'
             default   : codoopts['output-dir'] || codoopts.o || './doc'
+          )
+          .options('t',
+            alias     : 'theme'
+            describe  : 'The theme used to render the docs'
+            default   : codoopts.theme || codoopts.t || 'default'
           )
           .options('a',
             alias     : 'analytics'
@@ -185,6 +191,7 @@ module.exports = class Codo
             homepage: homepage
             analytics: analytics || argv.a
             undocumented: argv.u
+            theme: theme || argv.t
 
           extra = false
 
@@ -222,6 +229,10 @@ module.exports = class Codo
                   catch error
                     throw error if options.debug
                     console.log "Cannot parse file #{ filename }: #{ error.message }"
+
+          Codo.codoTheme = Theme.build options.theme, options
+          if Codo.codoTheme is null
+            throw new Error("Could not load theme #{options.theme}")
 
           new Generator(parser, Codo.theme(), options).generate(file)
           parser.showResult() unless options.quiet
@@ -305,3 +316,6 @@ module.exports = class Codo
       name = path.basename(process.cwd())
 
     done null, name.charAt(0).toUpperCase() + name.slice(1)
+
+# Export the Theme base class, so custom themes can extend it.
+Codo.Theme = Theme

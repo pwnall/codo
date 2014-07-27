@@ -23,7 +23,7 @@
     "theme/default/assets" : "./theme/default/assets",
     "theme/default/templates" : "./theme/default/templates"
   },
-  "main" : "./lib/index",
+  "main" : "./lib/index.js",
   "bin" : {
     "codo" : "./bin/codo"
   },
